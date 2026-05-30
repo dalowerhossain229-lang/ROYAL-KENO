@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ROYAL KENO - NEON BINGO JACKPOT</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 🎰 ক্যাসিনো হেডার প্যানেল (ডাইস-৩ডি স্ট্যান্ডার্ডে রিয়েল-টাইম ব্যালেন্স পাইপলাইন লক ভাই) -->
+    <div class="header">
+        <div class="brand">
+            <div class="name">ROYAL KENO</div>
+            <div class="game">NEON BINGO JACKPOT</div>
+        </div>
+        <div class="header-right">
+            <button class="sound-btn" id="mute-btn" onclick="toggleMute()">🔊</button>
+            <div class="balance-box">৳ <span id="user-balance">0.00</span></div>
+        </div>
+    </div>
+
+    <!-- 🔮 [কিং প্রিমিয়াম কাচের বক্স এরিয়া]: যেখান থেকে লাইভ লাকি বল মিক্সড হয়ে রিলিজ হবে ভাই ভাই -->
+    <div class="glass-box-container">
+        <div class="lottery-glass-sphere" id="lottery-glass-machine">
+            <!-- মিক্সিং বল ইফেক্ট নিয়ন মেকানিজম -->
+            <div class="glass-mixing-particle">🔮</div>
+            <div class="glass-mixing-particle" style="animation-delay: 0.1s;">🔮</div>
+            <div class="glass-mixing-particle" style="animation-delay: 0.2s;">🔮</div>
+        </div>
+    </div>
+
+    <!-- 🚥 [ডাইনামিক বল পাইপলাইন বার]: কাচের বক্স থেকে বের হওয়া বলগুলো এখানে সুন্দর লাইন ধরে এসে দাঁড়াবে -->
+    <div class="pipeline-display-bar">
+        <div class="pipeline-title">LIVE BALL TRACKER</div>
+        <div class="pipeline-row-flex" id="pipeline-balls-row">
+            <!-- সার্ভার লটারির বলগুলো এখানে সিরিয়ালি লাইন ধরে এসে হিট করবে ভাই ভাই -->
+            <div class="pipeline-slot-empty">?</div>
+            <div class="pipeline-slot-empty">?</div>
+            <div class="pipeline-slot-empty">?</div>
+            <div class="pipeline-slot-empty">?</div>
+            <div class="pipeline-slot-empty">?</div>
+        </div>
+    </div>
+
+    <!-- 🔢 ক্যানো গ্রিড বোর্ড জোন (১ থেকে ৪০টি নিয়ন নম্বর স্কয়ার ঘর ভাই ভাই) -->
+    <div class="keno-board-zone">
+        <div class="keno-grid-container" id="keno-grid-board">
+            <!-- জাভাস্ক্রিপ্ট লুপের সাহায্যে ১-৪০ টি ঘর অটো-জেনারেট লক ওস্তাদ -->
+        </div>
+    </div>
+
+    <!-- 🏆 ইন-লাইন লাইভ স্কোরিং ও উইন-লস মেসেজ বার (১০০% ক্লিয়ার রেজাল্ট ডিটেক্টর) -->
+    <div class="win-status-container" id="win-status-box">
+        <span id="win-text-msg">১ থেকে সর্বোচ্চ ১০টি নম্বর সিলেক্ট করে SPIN বোতাম চাপুন ভাই ভাই!</span>
+    </div>
+
+    <!-- 🎛️ কন্ট্রোল প্যানেল এরিয়া (৳১-৳২০০০0 প্লাস-মাইনাস ও SPIN বোতাম পাশাপাশি লক ভাই) -->
+    <div class="footer-controls">
+        <div class="play-section">
+            <div class="bet-selector">
+                <button class="bet-btn-nav" onclick="adjustBet('minus')">−</button>
+                <div style="text-align: center; width: 60px;">
+                    <div style="font-size: 9px; color: #aaa; font-weight: bold;">BET</div>
+                    <div style="font-size: 15px; font-weight: 900; color: #fff;" id="bet-display">৳৫০</div>
+                </div>
+                <button class="bet-btn-nav" onclick="adjustBet('plus')">+</button>
+            </div>
+
+            <button class="play-btn" id="spin-btn" onclick="handleKenoSpinAction()">SPIN</button>
+
+            <div class="icon-group">
+                <button class="icon-btn" id="auto-btn" onclick="toggleAuto()">🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔌 [উইনগো কালার ট্রেড সিঙ্ক - ইউনিভার্সাল সকেট ইঞ্জিন লাইব্রেরি ভাই] -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlUserId = urlParams.get('userId') || urlParams.get('id') || urlParams.get('username') || "guest_user";
+        const urlWallet = urlParams.get('wallet') || "main";
+        
+        const SERVER_URL = window.location.origin;
+
+        let balance = 0.00;
+        let currentBet = 50; 
+        let selectedNumbersPool = []; // প্লেয়ারের সিলেক্ট করা সংখ্যার অ্যারে
+        let isSpinning = false; 
+        let isAuto = false;
+        let isMuted = false;
+        let autoInterval = null;
+
+        // ১-৪০টি প্রফেশনাল নিয়ন গ্রিড বোর্ড ঘর তৈরি মেকানিজম ভাই ভাই
+        function buildKenoBoardGrid() {
+            const board = document.getElementById("keno-grid-board");
+            board.innerHTML = "";
+            for (let i = 1; i <= 40; i++) {
+                const cell = document.createElement("div");
+                cell.className = "keno-cell-node";
+                cell.id = `cell-${i}`;
+                cell.innerText = i;
+                cell.onclick = () => toggleNumberSelection(i);
+                board.appendChild(cell);
+            }
+        }
+
+        function toggleNumberSelection(num) {
+            if (isSpinning) return;
+            const cell = document.getElementById(`cell-${num}`);
+            
+            if (selectedNumbersPool.includes(num)) {
+                selectedNumbersPool = selectedNumbersPool.filter(n => n !== num);
+                cell.classList.remove("cell-selected-gold");
+                playAudio('click');
+            } else {
+                if (selectedNumbersPool.length >= 10) {
+                    alert("🚨 সর্বোচ্চ ১০টি নম্বরের বেশি বাজি ধরা যাবে না ভাই ভাই!");
+                    return;
+                }
+                selectedNumbersPool.push(num);
+                cell.classList.add("cell-selected-gold");
+                playAudio('click');
+            }
+        }
+
+        // 🧠 [১ শতভাগ একুরেট কাচের বক্স থেকে বল রিলিজ ও পাইপলাইন এনিমেশন ইঞ্জিন ভাই ভাই]
+        function runKenoLotteryMachineAnimation(serverLuckyNumbers, finalStatus, winAmount) {
+            const glassMachine = document.getElementById("lottery-glass-machine");
+            const pipelineRow = document.getElementById("pipeline-balls-row");
+            
+            pipelineRow.innerHTML = ""; // পাইপলাইন ফ্রেশ ফিক্সড
+            glassMachine.classList.add("glass-machine-active-shake"); // কাচের বক্স কাঁপানো শুরু ভাই ভাই
+            
+            let currentBallStep = 0;
+
+            // ⏱️ প্রতি ৫০০ মিলি-সেকেন্ড পর পর কাচের বক্স থেকে ১টি করে লাকি বল বের হয়ে লাইনে দাঁড়াবে ওস্তাদ
+            const baccaratBallTimeline = setInterval(() => {
+                if (currentBallStep >= serverLuckyNumbers.length) {
+                    clearInterval(baccaratBallTimeline);
+                    glassMachine.classList.remove("glass-machine-active-shake");
+                    
+                    // ফাইনাল উইন-লস পুরষ্কার ডিক্লেয়ার নোটিশ ভাই ভাই
+                    showFinalGameReward(finalStatus, winAmount, serverLuckyNumbers.filter(n => selectedNumbersPool.includes(n)).length);
+                    return;
+                }
+
+                const luckyNum = serverLuckyNumbers[currentBallStep];
+                playAudio('click');
+
+                // ১. পাইপলাইন বারে নতুন বল পুশ এনিমেশন লক ভাই ভাই
+                const ballNode = document.createElement("div");
+                const isHitMatch = selectedNumbersPool.includes(luckyNum);
+                
+                ballNode.className = isHitMatch ? "pipeline-ball-node ball-hit-green" : "pipeline-ball-node ball-miss-red";
+                ballNode.innerText = luckyNum;
+                pipelineRow.appendChild(ballNode);
+
+                // ২. একই সাথে মূল গ্রিড বোর্ডেও কালার চেঞ্জ করার সুতা ভাই ভাই (🟢 সবুজ = HIT, 🔴 লাল = MISS)
+                const gridCell = document.getElementById(`cell-${luckyNum}`);
+                if (gridCell) {
+                    if (isHitMatch) {
+                        gridCell.className = "keno-cell-node grid-cell-hit-green-glow";
+                        gridCell.innerHTML = `${luckyNum}<span class="hit-miss-tag">🎯 HIT</span>`;
+                    } else {
+                        gridCell.className = "keno-cell-node grid-cell-miss-red-glow";
+                        gridCell.innerHTML = `${luckyNum}<span class="hit-miss-tag">💣</span>`;
+                    }
+                }
+
+                currentBallStep++;
+            }, 600); // 🚀 ৬০০ মিলি-সেকেন্ড স্পিড বুস্টার কোড ভাই ভাই
+        }
+
+        // 🛫 কোর SPIN বোতাম ট্রিগার অ্যাকশন গেটওয়ে ভাই ভাই
+        async function handleKenoSpinAction() {
+            if (isSpinning) return;
+            if (selectedNumbersPool.length === 0) {
+                alert("🚨 আগে গ্রিড বোর্ড থেকে অন্তত ১টি নম্বর বাজি ধরার জন্য সিলেক্ট করুন ভাই!");
+                isAuto = false;
+                document.getElementById("auto-btn").classList.remove("active");
+                return;
+            }
+
+            isSpinning = true;
+            document.getElementById("spin-btn").disabled = true;
+            document.getElementById("win-status-box").className = "win-status-container";
+            document.getElementById("win-text-msg").innerText = "🔮 লটারি বক্স থেকে লাকি নম্বর বের হচ্ছে...";
+
+            // গ্রিড বোর্ডের পুরনো রঙের দাগ এক শটে ধুয়ে-মুছে সাফ করার চাবি ভাই ভাই
+            for(let i=1; i<=40; i++) {
+                const cell = document.getElementById(`cell-${i}`);
+                if(selectedNumbersPool.includes(i)) {
+                    cell.className = "keno-cell-node cell-selected-gold";
+                    cell.innerText = i;
+                } else {
+                    cell.className = "keno-cell-node";
+                    cell.innerText = i;
+                }
+            }
+            document.getElementById("pipeline-balls-row").innerHTML = `<div class="pipeline-slot-empty">?</div>`.repeat(5);
+
+            playAudio('spin');
+
+            try {
+                
+                const response = await fetch(`${SERVER_URL}/api/keno-spin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: urlUserId,
+                        amount: parseFloat(currentBet),
+                        wallet: urlWallet,
+                        pickedNumbers: selectedNumbersPool
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data && data.success === true) {
+                    balance = parseFloat(data.balance);
+                    if (window.parent) window.parent.postMessage({ action: "refresh_wallet" }, "*");
+                    if (window.top) window.top.postMessage({ action: "refresh_wallet" }, "*");
+
+                    // ডাটা আসার সাথে সাথে কাচের বক্স ও পাইপলাইন অন ফায়ার সচল লক!
+                    runKenoLotteryMachineAnimation(data.luckyNumbers, data.status, data.winAmount);
+                } else {
+                    alert(data.message || "❌ Insufficient Balance! Please Recharge BDT.");
+                    stopKenoState();
+                }
+            } catch (err) {
+                alert("⚠️ সেশন আউট! আবার SPIN বোতাম চাপুন ভাই ভাই।");
+                stopKenoState();
+            }
+        }
+
+        function showFinalGameReward(status, winAmount, matchCount) {
+            const msgBox = document.getElementById("win-status-box");
+            const textMsg = document.getElementById("win-text-msg");
+
+            if (status === "win") {
+                playAudio('win');
+                msgBox.className = "win-status-container win-glow-bar";
+                textMsg.innerText = `🏆 মেগা উইন!! ওরিজিনাল [${matchCount}] টি নাম্বার হুবহু মিলে গেছে! (৳${winAmount})`;
+            } else {
+                playAudio('wheel'); 
+                msgBox.className = "win-status-container lose-glow-bar";
+                textMsg.innerText = `❌ ক্যানো লটারির কোনো নাম্বার আপনার সিলেক্ট করাঘরের সাথে মেলেনি ভাই ভাই!`;
+            }
+
+            document.getElementById("user-balance").innerText = balance.toFixed(2);
+            stopKenoState();
+
+            if (isAuto) {
+                autoInterval = setTimeout(() => { if (isAuto) handleKenoSpinAction(); }, 3000); 
+            }
+        }
+
+        if (typeof io !== 'undefined') {
+            const socket = io();
+            socket.on("balanceUpdate", (data) => {
+                if (data && data.username === urlUserId) {
+                    if (window.parent) window.parent.postMessage({ action: "refresh_wallet" }, "*");
+                    fetchLiveBalance();
+                }
+            });
+        }
+
+        async function fetchLiveBalance() {
+            try {
+                const response = await fetch(`${SERVER_URL}/api/keno-balance?userId=${urlUserId}&wallet=${urlWallet}`);
+                const data = await response.json();
+                if (data && data.success) {
+                    balance = parseFloat(data.balance);
+                    document.getElementById("user-balance").innerText = balance.toFixed(2);
+                }
+            } catch (e) { console.error("Balance fetch delay query pass"); }
+        }
+
+        window.onload = () => {
+            buildKenoBoardGrid();
+            if (window.parent) window.parent.postMessage({ action: "refresh_wallet" }, "*");
+            fetchLiveBalance();
+        };
+
+        function adjustBet(action) {
+            if (isSpinning) return;
+            if (action === 'minus' && currentBet > 1) {
+                if (currentBet <= 10) currentBet -= 1;
+                else if (currentBet <= 100) currentBet -= 10;
+                else if (currentBet <= 1000) currentBet -= 100;
+                else currentBet -= 500;
+            }
+            if (action === 'plus' && currentBet < 20000) {
+                if (currentBet < 10) currentBet += 1;
+                else if (currentBet < 100) currentBet += 10;
+                else if (currentBet < 1000) currentBet += 100;
+                else currentBet += 500;
+            }
+            if (currentBet < 1) currentBet = 1;
+            if (currentBet > 20000) currentBet = 20000;
+            
+            document.getElementById("bet-display").innerText = `৳${currentBet}`;
+            playAudio('click');
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            document.getElementById("mute-btn").innerText = isMuted ? "🔇" : "🔊";
+            document.getElementById("mute-btn").classList.toggle("muted-active", isMuted);
+            slotSounds.click.muted = isMuted;
+            slotSounds.spin.muted = isMuted;
+            slotSounds.win.muted = isMuted;
+            slotSounds.wheel.muted = isMuted;
+        }
+
+        function toggleAuto() {
+            isAuto = !isAuto;
+            document.getElementById("auto-btn").classList.toggle("active", isAuto);
+            if (isAuto && !isSpinning) handleKenoSpinAction();
+            playAudio('click');
+        }
+
+        function stopKenoState() {
+            isSpinning = false;
+            document.getElementById("spin-btn").disabled = false;
+            if (!isAuto && autoInterval) clearTimeout(autoInterval);
+        }
+
+        // 🎯 [৪টি ওরিজিনাল প্রিমিয়াম ক্যাসিনো সাউন্ড ও বাফার গেটওয়ে লক ভাই ভাই]
+        const slotSounds = {
+            click: new Audio('click2.mp3'),
+            spin: new Audio('spin2.mp3'),
+            win: new Audio('win2.mp3'),
+            wheel: new Audio('wheel1.mp3')
+        };
+        Object.values(slotSounds).forEach(s => s.load());
+
+        function playAudio(type) { 
+            if (isMuted) return; 
+            try { 
+                slotSounds[type].currentTime = 0; 
+                slotSounds[type].play(); 
+            } catch(e){} 
+        }
+    </script>
+</body>
+</html>
