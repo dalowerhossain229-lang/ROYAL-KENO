@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ROYAL KENO - NEON BINGO JACKPOT</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 🎨 স্পীড অপ্টিমাইজড কোর সিএসএস ফ্রেম ইনজেকশন ভাই ভাই */
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #05070c; font-family: 'Segoe UI', Roboto, sans-serif; color: #fff; -webkit-tap-highlight-color: transparent; user-select: none; }
+        .header { display: none !important; } /* ডাবল ব্যালেন্স বক্স জ্যাম ব্লকার */
+        
+        body { 
+            background: radial-gradient(circle at center, #0f1424 0%, #05070c 100%); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            height: 100vh; 
+        }
+
+        /* 🔮 ওপরের মেইন জাদুকরী লাইভ ক্রিস্টাল বল কন্টেইনার এরিয়া */
+        .crystal-ball-hub {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 15px auto 5px auto;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #1e293b 0%, #090d16 70%, #020408 100%);
+            border: 3px solid #ffaa00;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8), 0 0 15px rgba(255,170,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 900;
+            color: #ffaa00;
+            z-index: 5;
+        }
+
+        /* 🔴 লাইভ ৫টি বল ড্রপিং হরাইজন্টাল ট্র্যাকার প্যানেল */
+        .live-ball-tracker-bar {
+            text-align: center;
+            margin: 5px auto;
+            z-index: 5;
+            position: relative;
+        }
+        .tracker-title { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .balls-row-container { display: flex; justify-content: center; gap: 8px; min-height: 32px; }
+        .dropped-ball-node { width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 13px; font-weight: 900; color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.5); animation: ballPopIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes ballPopIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+        /* 🔢 ৪০-সংখ্যার প্রিমিয়াম ম্যাট্রিক্স বিঙ্গো গ্রিড বোর্ড */
+        .keno-matrix-grid-board {
+            position: relative;
+            z-index: 5;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            padding: 10px 14px;
+            max-width: 450px;
+            margin: 0 auto;
+            width: calc(100% - 28px);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .keno-number-cell {
+            background: linear-gradient(180deg, #131926 0%, #0b0e14 100%);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 10px 0;
+            font-size: 14px;
+            font-weight: 800;
+            color: #64748b;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* 🎯 প্লেয়ারের সিলেক্ট করা ১০টি নম্বরের কড়া নিয়ন গোল্ডেন গ্লো বর্ম (আপনার স্ক্রিনশটের সিঙ্ক!) */
+        .keno-number-cell.user-selected-active {
+            background: linear-gradient(180deg, #ffbb00 0%, #d48800 100%) !important;
+            color: #000000 !important;
+            border-color: #fef08a !important;
+            box-shadow: 0 0 10px rgba(255,170,0,0.4) !important;
+        }
+
+        /* 💥 লটারির ড্রপ হওয়া বলের হিট ও মিসিং নিয়ন কালার ইন্ডিকেটর */
+        .cell-hit-match { background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important; color: #ffffff !important; border-color: #34d399 !important; box-shadow: 0 0 12px #10b981 !important; position: relative; }
+        .cell-hit-match::after { content: "🎯 HIT"; position: absolute; bottom: 1px; left: 50%; transform: translateX(-50%); font-size: 6px; font-weight: 900; color: #fff; opacity: 0.8; }
+        
+        .cell-missed-fade { background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%) !important; color: #ffffff !important; border-color: #f87171 !important; }
+
+        /* 📢 লাইভ মেসেজ প্যানেল বার */
+        .win-status-container { position: relative; z-index: 10; text-align: center; padding: 10px; margin: 5px 12px; background: rgba(9, 12, 18, 0.6); border-radius: 10px; border: 1px solid rgba(255,255,255,0.02); }
+        #win-text-msg { font-size: 11px; font-weight: 700; color: #ffaa00; letter-spacing: 0.3px; }
+
+        /* 🎛️ কন্ট্রোল ফুটার প্যানেল বার (SPIN বোতাম লক) */
+        .footer-controls { position: relative; z-index: 50; background: #07090e; border-top: 1px solid #161b29; padding: 10px 15px 25px 15px; box-shadow: 0 -5px 20px rgba(0,0,0,0.6); }
+        .play-section { display: flex; justify-content: space-between; align-items: center; gap: 10px; max-width: 450px; margin: 0 auto; }
+        .bet-btn-nav { background: #111522; border: 1px solid #20293d; color: #ffaa00; font-size: 18px; font-weight: 800; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .play-btn { flex: 1; background: linear-gradient(180deg, #ffbb00 0%, #d48800 100%); color: #000; font-size: 15px; font-weight: 900; border: none; padding: 11px 0; border-radius: 10px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(212,136,0,0.3); }
+        .play-btn:disabled { background: #141721 !important; border-color: #1f2536 !important; color: #4b5563 !important; box-shadow: none !important; cursor: not-allowed; }
+        .icon-btn { background: #111522; border: 1px solid #20293d; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #ffaa00; font-weight: bold; }
+        .icon-btn.active { background: #ffaa00; color: #000; box-shadow: 0 0 10px rgba(255,170,0,0.4); }
+
+        .win-glow-bar { border-color: rgba(0, 255, 136, 0.4) !important; background: rgba(0, 255, 136, 0.05) !important; }
+        .win-glow-bar #win-text-msg { color: #00ff88 !important; }
+        .lose-glow-bar { border-color: rgba(255, 51, 102, 0.4) !important; background: rgba(255, 51, 102, 0.05) !important; }
+        .lose-glow-bar #win-text-msg { color: #ff3366 !important; }
+    </style>
+</head>
+<body>
+
+    <div class="header" style="display:none !important;">
+        <div class="balance-box">৳ <span id="user-balance">0.00</span></div>
+    </div>
+
+    <!-- 🔮 ওপরের মেইন জাদুকরী লাইভ ক্রিস্টাল বল কন্টেইনার এরিয়া -->
+    <div class="crystal-ball-hub" id="main-crystal-ball">🔮</div>
+
+    <!-- 🔴 লাইভ ৫টি বল ড্রপিং হরাইজন্টাল ট্র্যাকার প্যানেল -->
+    <div class="live-ball-tracker-bar">
+        <div class="tracker-title">Live Ball Tracker</div>
+        <div class="balls-row-container" id="live-ball-tracker-row">
+            <!-- ৫টি লটারি বল ড্রপ এনিমেশন নোড এখানে ভেসে উঠবে ওস্তাদ -->
+        </div>
+    </div>
+
+    <!-- 🔢 ৪০-সংখ্যার বিঙ্গো গ্রিড বোর্ড এরিয়া ভাই ভাই -->
+    <div class="keno-matrix-grid-board" id="keno-matrix-board-node">
+        <!-- জাভাস্ক্রিপ্ট লুপ দিয়ে ১ থেকে ৪০ পর্যন্ত ঘর রেন্ডার হবে ওস্তাদ -->
+    </div>
+
+    <!-- 📢 উইন-লস লাইভ ক্যাসিনো মেসেজ প্যানেল বার -->
+    <div class="win-status-container" id="win-status-box">
+        <span id="win-text-msg">১ থেকে ১০টি নাম্বার গ্রিডে চুজ করে SPIN বোতাম চাপুন ওস্তাদ!</span>
+    </div>
+
+    <!-- 🎛️ অ্যাকশন কন্ট্রোল ফুটার প্যানেল বার -->
+    <div class="footer-controls">
+        <div class="play-section">
+            <button class="bet-btn-nav" onclick="adjustBet('minus')">-</button>
+            <div style="text-align: center; width: 60px;">
+                <div style="font-size: 9px; color: #aaa; font-weight: bold;">BET</div>
+                <div style="font-size: 15px; font-weight: 900; color: #fff;" id="bet-display">৳৫০</div>
+            </div>
+            <button class="bet-btn-nav" onclick="adjustBet('plus')">+</button>
+
+            <button class="play-btn" id="spin-btn" onclick="handleKenoJackpotSpin()">SPIN</button>
+            
+            <div class="icon-group">
+                <button class="icon-btn" id="auto-btn" onclick="toggleAuto()">🤖</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlUserId = urlParams.get('userId') || urlParams.get('id') || urlParams.get('username') || "guest_user";
+        const urlWallet = urlParams.get('wallet') || "main";
+        const SERVER_URL = window.location.origin;
+
+        let balance = 0.00;
+        let currentBet = 50;
+        let userSelectedNumbersArray = [];
+        let isSpinning = false;
+        let isAuto = false;
+        let isMuted = false;
+        let autoInterval = null;
+
+        // 🔢 ১ থেকে ৪০ ঘর ম্যাট্রিক্স জেনারেটর ইঞ্জিন ভাই ভাই
+        function generateKenoBingoMatrixBoard() {
+            const boardNode = document.getElementById("keno-matrix-board-node");
+            if (!boardNode) return;
+            boardNode.innerHTML = "";
+
+            for (let i = 1; i <= 40; i++) {
+                const cell = document.createElement("button");
+                cell.className = "keno-number-cell";
+                cell.id = `keno-cell-${i}`;
+                cell.innerText = i;
+                cell.onclick = () => handleNumberCellSelection(i);
+                boardNode.appendChild(cell);
+            }
+        }
+
+        function handleNumberCellSelection(number) {
+            if (isSpinning) return;
+            
+            const cellElement = document.getElementById(`keno-cell-${number}`);
+            let arrayIndex = userSelectedNumbersArray.indexOf(number);
+
+            if (arrayIndex > -1) {
+                userSelectedNumbersArray.splice(arrayIndex, 1);
+                if (cellElement) cellElement.classList.remove("user-selected-active");
+            } else {
+                if (userSelectedNumbersArray.length >= 10) {
+                    alert("🔒 ওস্তাদ! ক্যাসিনো নিয়মে এক রাউন্ডে ১০টির বেশি নাম্বার সিলেক্ট করা যাবে না ভাই ভাই!");
+                    return;
+                }
+                userSelectedNumbersArray.push(number);
+                if (cellElement) cellElement.classList.add("user-selected-active");
+            }
+            playAudio('click');
+        }
+
+        function adjustBet(action) {
+            if (isSpinning) return;
+            if (action === 'minus' && currentBet > 50) currentBet -= 50;
+            if (action === 'plus' && currentBet < 20000) currentBet += 50;
+            document.getElementById("bet-display").innerText = `৳${currentBet}`;
+            playAudio('click');
+        }
+
+        // 🎰 [🎰 ওরিজিনাল ৫-বল লটারি ড্রপিং এবং ব্লিঙ্কিং এনিমেশন ড্রাইভার ভাই ভাই]
+        function animateKenoBingoBallsDropping(serverGameData) {
+            const trackerRow = document.getElementById("live-ball-tracker-row");
+            const crystalBall = document.getElementById("main-crystal-ball");
+            const winningBallsArray = serverGameData.drawnBallsList || [];
+            
+            if (trackerRow) trackerRow.innerHTML = "";
+            let currentBallIndex = 0;
+
+            const ballInterval = setInterval(() => {
+                if (currentBallIndex >= winningBallsArray.length) {
+                    clearInterval(ballInterval);
+                    
+                    if (crystalBall) crystalBall.innerText = "🔮";
+                    showFinalKenoReward(serverGameData.status, serverGameData.winAmount, serverGameData.matchedCount);
+                    return;
+                }
+
+                let exactBallNum = winningBallsArray[currentBallIndex];
+                if (crystalBall) crystalBall.innerText = exactBallNum;
+                playAudio('spin');
+
+                const ballDiv = document.createElement("div");
+                ballDiv.className = "dropped-ball-node";
+                
+                let randomHexColor = ["#ef4444", "#3b82f6", "#10b981", "#fbbf24", "#a855f7"][currentBallIndex % 5];
+                ballDiv.style.background = `radial-gradient(circle, ${randomHexColor} 0%, #000 100%)`;
+                ballDiv.style.border = `2px solid ${randomHexColor}`;
+                ballDiv.innerText = exactBallNum;
+                if (trackerRow) trackerRow.appendChild(ballDiv);
+
+                const targetCell = document.getElementById(`keno-cell-${exactBallNum}`);
+                if (targetCell) {
+                    if (userSelectedNumbersArray.includes(exactBallNum)) {
+                        targetCell.className = "keno-number-cell cell-hit-match"; 
+                    } else {
+                        targetCell.className = "keno-number-cell cell-missed-fade"; 
+                    }
+                }
+
+                currentBallIndex++;
+            }, 600); 
+        }
+
+        async function handleKenoJackpotSpin() {
+            if (isSpinning || isSpinning === true) return; 
+            if (userSelectedNumbersArray.length < 1) {
+                alert("🔒 বাজি প্লে করার আগে গ্রিড বোর্ড থেকে অন্তত ১টি লাকি নাম্বার সিলেক্ট করুন ওস্তাদ!");
+                return;
+            }
+
+            isSpinning = true;
+            if (document.getElementById("spin-btn")) document.getElementById("spin-btn").disabled = true;
+            if (document.getElementById("win-status-box")) document.getElementById("win-status-box").className = "win-status-container";
+            if (document.getElementById("win-text-msg")) document.getElementById("win-text-msg").innerText = "🎰 কিনো বল বাকেট ঘোরানো হচ্ছে, লটারি ড্র লাইভ...";
+            
+            for (let i = 1; i <= 40; i++) {
+                const cell = document.getElementById(`keno-cell-${i}`);
+                if (cell) {
+                    cell.classList.remove("cell-hit-match", "cell-missed-fade");
+                    if (userSelectedNumbersArray.includes(i)) cell.classList.add("user-selected-active");
+                }
+            }
+            playAudio('click');
+
+            try {
+                const response = await fetch(`${SERVER_URL}/api/keno-deal`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: urlUserId, amount: parseFloat(currentBet), wallet: urlWallet, selectedNumbers: userSelectedNumbersArray
+                    })
+                });
+
+                const serverRes = await response.json();
+                
+                if (serverRes.success || serverRes.success === true) {
+                    let parsedLiveBalance = serverRes.balance || serverRes.data?.balance || balance;
+                    balance = parseFloat(parsedLiveBalance);
+                    
+                    let targetGamePayload = serverRes.gameData || serverRes;
+                    animateKenoBingoBallsDropping(targetGamePayload);
+                } else {
+                    alert(serverRes.message || "❌ Insufficient Balance! Please Recharge Wallet.");
+                    stopKenoState();
+                }
+            } catch (err) {
+                stopKenoState();
+            }
+        }
+
+        function showFinalKenoReward(status, winAmount, matchedCount) {
+            const msgBox = document.getElementById("win-status-box");
+            const textMsg = document.getElementById("win-text-msg");
+            
+            if (status === "win" || matchedCount > 0) {
+                playAudio('win');
+                if (msgBox) msgBox.className = "win-status-container win-glow-bar";
+                if (textMsg) textMsg.innerHTML = `🎉 মেগা উইন!! ওরিজিনাল [<b>${matchedCount}</b>] টি নাম্বার হুবহু মিলে গেছে! (৳${winAmount})`;
+            } else {
+                playAudio('wheel');
+                if (msgBox) msgBox.className = "win-status-container lose-glow-bar";
+                if (textMsg) textMsg.innerHTML = `💥 ওহ হো লস ওস্তাদ! কোনো নাম্বার মেলেনি। আবার অন্য লাকি নাম্বার চেপে ট্রাই করুন ভাই ভাই!`;
+            }
+
+            if (typeof balance !== 'undefined' && !isNaN(balance)) {
+                if (document.getElementById("user-balance")) {
+                    document.getElementById("user-balance").innerText = balance.toFixed(2);
+                }
+            }
+
+            setTimeout(() => { fetchLiveBalance(); }, 1500);
+            stopKenoState();
+
+            if (isAuto) {
+                autoInterval = setTimeout(() => {
+                    if (isAuto) handleKenoJackpotSpin();
+                }, 3500);
+            }
+        }
+
+        if (typeof io !== 'undefined') {
+            const socket = io();
+            socket.on("balanceUpdate", (data) => {
+                if (data && data.username === urlUserId) {
+                    if (data.balance !== undefined) {
+                        balance = parseFloat(data.balance);
+                        if (document.getElementById("user-balance")) {
+                            document.getElementById("user-balance").innerText = balance.toFixed(2);
+                        }
+                    }
+                    if (window.parent) window.parent.postMessage({ action: "refresh_wallet" }, "*");
+                }
+            });
+        }
+
+        async function fetchLiveBalance() {
+            try {
+                const response = await fetch(`${SERVER_URL}/api/keno-balance?userId=${urlUserId}&wallet=${urlWallet}`);
+                const serverData = await response.json();
+                if (serverData.success || serverData.balance !== undefined) {
+                    balance = parseFloat(serverData.balance);
+                    if (document.getElementById("user-balance")) {
+                        document.getElementById("user-balance").innerText = balance.toFixed(2);
+                    }
+                }
+            } catch (e) { console.error("Keno balance sync pass"); }
+        }
+
+        window.onload = () => {
+            if (window.parent) window.parent.postMessage({ action: "refresh_wallet" }, "*");
+            generateKenoBingoMatrixBoard(); 
+            fetchLiveBalance();
+        };
+
+        function toggleAuto() {
+            isAuto = !isAuto;
+            const autoEl = document.getElementById("auto-btn");
+            if (autoEl) autoEl.classList.toggle('active', isAuto);
+            if (isAuto && !isSpinning) handleKenoJackpotSpin();
+            playAudio('click');
+        }
+
+        function stopKenoState() {
+            isSpinning = false;
+            if (document.getElementById("spin-btn")) document.getElementById("spin-btn").disabled = false;
+            if (!isAuto && autoInterval) clearTimeout(autoInterval);
+        }
+
+        const slotSounds = {
+            click: new Audio('spin2.mp3'), spin: new Audio('spin2.mp3'),
+            win: new Audio('win2.mp3'), wheel: new Audio('spin2.mp3')
+        };
+        Object.values(slotSounds).forEach(s => s.load());
+
+        function playAudio(type) {
+            try { slotSounds[type].currentTime = 0; slotSounds[type].play(); } catch(e) {}
+        }
+    </script>
+</body>
+</html>
+
